@@ -1,6 +1,6 @@
 # Alpine Linux rootfs Builder
 
-This builder image constructs a Alpine Linux `rootfs.tar.gz` for us to use when building the base Alpine Linux image. The `mkimage-alpine.sh` script does all the heavy lifting. During the configuration of the image we add our `apk-install` convenience script.
+This builder image constructs a Alpine Linux `rootfs.tar.gz` for us to use when building the base Alpine Linux image. The `mkimage-alpine.bash` script does all the heavy lifting. During the configuration of the image we add our `apk-install` convenience script.
 
 ## Options
 
