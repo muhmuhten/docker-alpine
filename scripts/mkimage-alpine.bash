@@ -22,7 +22,6 @@ build() {
 	declare mirror="$1" rel="$2" packages="${3:-alpine-base}"
 
 	local rootfs="$(mktemp -d "${TMPDIR:-/var/tmp}/alpine-docker-rootfs-XXXXXXXXXX")"
-	# trap "rm -rf $tmp $rootfs" EXIT TERM INT
 
 	# conf
 	mkdir -p "$rootfs/etc/apk"
@@ -39,6 +38,7 @@ build() {
 	{
 		apk --root "$rootfs" --update-cache --keys-dir /etc/apk/keys \
 			add --initdb ${packages//,/ }
+		rm -f "$rootfs/var/cache/apk"/*
 		[[ "$ADD_BASELAYOUT" ]] && \
 			apk fetch --stdout alpine-base | tar -xvzC "$rootfs" etc
 		[[ "$TIMEZONE" ]] && \
