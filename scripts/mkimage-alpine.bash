@@ -21,10 +21,8 @@ usage() {
 build() {
 	declare mirror="$1" rel="$2" packages="${3:-alpine-base}"
 
-	local rootfs="$(mktemp -d "${TMPDIR:-/var/tmp}/alpine-docker-rootfs-XXXXXXXXXX")"
-
 	# conf
-	mkdir -p "$rootfs/etc/apk"
+	mkdir -p /mnt/etc/apk
 	{
 		echo "$mirror/$rel/main"
 		[[ "$OMIT_COMMUNITY" ]] || echo "$mirror/$rel/community"
@@ -32,23 +30,23 @@ build() {
 			[[ "$rel" == "edge" ]] || echo "@edge $mirror/edge/main"
 			echo "@testing $mirror/edge/testing"
 		}
-	} > "$rootfs/etc/apk/repositories"
+	} > /mnt/etc/apk/repositories
 
 	# mkbase
 	{
-		apk --root "$rootfs" --update-cache --keys-dir /etc/apk/keys \
+		apk --root /mnt --update-cache --keys-dir /etc/apk/keys \
 			add --initdb ${packages//,/ }
-		rm -f "$rootfs/var/cache/apk"/*
+		rm -f /mnt/var/cache/apk/*
 		[[ "$ADD_BASELAYOUT" ]] && \
-			apk fetch --stdout alpine-base | tar -xvzC "$rootfs" etc
+			apk fetch --stdout alpine-base | tar -xvzC /mnt etc
 		[[ "$TIMEZONE" ]] && \
-			cp "/usr/share/zoneinfo/$TIMEZONE" "$rootfs/etc/localtime"
+			cp "/usr/share/zoneinfo/$TIMEZONE" /mnt/etc/localtime
 	} >&2
 
-	[[ "$ADD_APK_SCRIPT" ]] && cp /apk-install "$rootfs/usr/sbin/apk-install"
+	[[ "$ADD_APK_SCRIPT" ]] && cp /apk-install /mnt/usr/sbin/apk-install
 
 	# save
-	[[ "$STDOUT" ]] && tar -czC "$rootfs" --numeric-owner .
+	[[ "$STDOUT" ]] && tar -czC /mnt --numeric-owner .
 
 	return 0
 }
